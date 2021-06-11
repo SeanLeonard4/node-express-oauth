@@ -68,7 +68,7 @@ app.get('/authorize', (req, res) => {
 	res.status(200).end();
 	const requestId = randomString();
 	requests[requestId] = req.query;
-	console.log(req.query.requestId);
+
 })
 
 
