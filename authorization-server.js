@@ -52,12 +52,12 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
 app.get('/authorize', (req, res) => {
-	res.status(200).end();
-	// if(clients.contains(req.query)){
-	// 	res.status(200)
-	// }else{
-	// 	res.status(404).send('Client not found')
-	// }
+	// res.status(200).end();
+	if(clients.contains(req.query)){
+	res.status(200)
+	}else{
+	res.status(401)
+	}
 })
 
 
