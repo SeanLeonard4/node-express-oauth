@@ -7,7 +7,7 @@ it("serves an empty authorize route @authorization-server-create-authorize-route
 	return request(app)
 		.get("/authorize")
 		.then((res) => {
-			assert.notEqual(res.status, 404, "The `/authorize` route doesn't exist")
+			assert.notStrictEqual(res.status, 404, "The `/authorize` route doesn't exist")
 		})
 })
 

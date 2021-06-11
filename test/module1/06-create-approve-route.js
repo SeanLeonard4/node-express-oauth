@@ -7,6 +7,6 @@ it("serves an empty approve route @authorization-server-create-approve-route", (
 	return request(app)
 		.post("/approve")
 		.then((res) => {
-			assert.notEqual(res.status, 404, "The `/approve` route doesn't exist")
+			assert.notStrictEqual(res.status, 404, "The `/approve` route doesn't exist")
 		})
 })

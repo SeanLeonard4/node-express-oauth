@@ -7,7 +7,7 @@ it("returns a 200 for a valid scope @authorization-server-validate-scope", () =>
 	return request(app)
 		.get("/authorize?client_id=my-client&scope=permission:name")
 		.then((res) => {
-			assert.notEqual(
+			assert.notStrictEqual(
 				res.status,
 				401,
 				"The `/authorize` route should not return a 401 status if the requested scope is allowed for the given client ID"
@@ -17,7 +17,7 @@ it("returns a 200 for a valid scope @authorization-server-validate-scope", () =>
 			)
 		})
 		.then((res) => {
-			assert.equal(
+			assert.strictEqual(
 				res.status,
 				401,
 				"The `/authorize` route should return a 401 status if the requested scope isn't allowed for the given client ID"

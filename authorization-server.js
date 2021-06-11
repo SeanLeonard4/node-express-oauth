@@ -54,19 +54,19 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.get('/authorize', (req, res) => {
 	const clientId = req.query.client_id;
 	const client = clients[clientId];
-	res.render('test');	
+
 	if(!client){
 		res.status(401).send("Client not authorized");
 		return
 	}
-	if(
-		typeof req.query.scope !== "String" || 
-		!containsAll(req.query.scopes.split(" "), client.scopes)
-	){
+	
+	if(typeof req.query.scope !== "string" ||
+	!containsAll(client.scopes, req.query.scope.split(" "))){
 		res.status(401).send("Invalid requested scopes")
 		return
 	}
 	
+	res.status(200).end();
 })
 
 

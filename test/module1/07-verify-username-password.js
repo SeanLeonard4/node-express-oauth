@@ -21,7 +21,7 @@ it("/approve route verifies the userName and password credentials @authorization
 			requestId,
 		})
 		.then((res) => {
-			assert.equal(
+			assert.strictEqual(
 				[200, 302, 408].indexOf(res.status) >= 0,
 				true,
 				"The /approve route should return a 200 status for the correct username and password"
@@ -34,7 +34,7 @@ it("/approve route verifies the userName and password credentials @authorization
 			})
 		})
 		.then((res) => {
-			assert.equal(
+			assert.strictEqual(
 				res.status,
 				401,
 				"The /approve route should return a 401 status if the userName and password are invalid"
