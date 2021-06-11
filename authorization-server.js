@@ -8,6 +8,7 @@ const {
 	decodeAuthCredentials,
 	timeout,
 } = require("./utils")
+const { endianness } = require("os")
 
 const config = {
 	port: 9001,
@@ -49,6 +50,18 @@ app.set("views", "assets/authorization-server")
 app.use(timeout)
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+
+app.get('/authorize') = (req, res) =>{
+	res.status(200).end();
+	// if(clients.contains(req.query)){
+	// 	res.status(200)
+	// }else{
+	// 	res.status(404).send('Client not found')
+	// }
+}
+
+
+
 
 /*
 Your code here
