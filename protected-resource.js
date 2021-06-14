@@ -71,7 +71,6 @@ app.get('/user-info', (req, res) => {
 	for(let i = 0; i < scope.length; i++){
 		const field = scope[i].slice("permission:".length);
 		userWithRestrictedFields[field] = user[field];
-		console.log(field)
 	}
 
 	res.json(userWithRestrictedFields); 	
