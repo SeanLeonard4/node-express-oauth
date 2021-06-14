@@ -2,7 +2,8 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const axios = require("axios").default
 const { randomString, timeout } = require("./utils")
-
+const url = require("url")
+const { get } = require("http")
 const config = {
 	port: 9000,
 
@@ -44,3 +45,54 @@ module.exports = {
 		state = s
 	},
 }
+
+app.get('/authorize', (req, res) => {
+	state = randomString();
+
+	const redirectUrl = url.parse(config.authorizationEndpoint);
+	redirectUrl.query = {
+		response_type: "code",
+		client_id: config.clientId,
+		redirect_uri: config.redirectUri,
+		scope: "permission:name permission:date_of_birth",
+		state: state,
+	}
+
+	res.redirect(url.format(redirectUrl));
+
+
+})
+
+app.get('/callback', (req, res) => {
+	if(req.query.state !== state){
+		res.status(403).send("Error: incorrect status");
+		return
+	}
+	const {code} = req.query;
+
+	axios.post({
+		url: config.tokenEndpoint,
+		auth: {
+			username: config.clientId,
+			password: config.clientSecret
+		},
+		data: {code},
+		validateStatus: null,
+	})
+		.then((res)  => {
+			axios.get({
+				url: config.userInfoEndpoint,
+				headers: {
+					authorization: "bearer " + res.data.access_token,
+				},
+			})
+		})
+		.then((res) => {
+			const data = res.data;
+			res.render("welcome", { user: data })
+		})
+		.catch((err) => {
+			console.error(err)
+			res.status(500).send("Error: something went wrong")
+		})
+})
