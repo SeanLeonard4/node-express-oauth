@@ -85,7 +85,7 @@ app.post('/approve', (req, res) => {
 
 	if(!userName || users[userName] !== password){
 		res.status(401).send('Error: User not authorized')
-		return
+		return;
 	}
 	const clientReq = requests[requestId];
 	delete requests[requestId];
@@ -104,8 +104,6 @@ app.post('/approve', (req, res) => {
 	}
 	
 	res.redirect(url.format(redirectUri));
-
-	res.status(200).end();
 
 })
 
@@ -139,9 +137,9 @@ app.post('/token', (req, res) => {
 		issuer: "http://localhost:" + config.port,
 	})
 
-	res.status(200).json({
+	res.json({
 		access_token: token,
-		token_type: "Bearer",
+		token_type: "bearer",
 		scope: obj.clientReq.scope,
 	})
 

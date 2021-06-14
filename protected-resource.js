@@ -2,6 +2,8 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const fs = require("fs")
 const { timeout } = require("./utils")
+const {JsonWebTokenError } = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
 
 const config = {
 	port: 9002,
@@ -42,3 +44,35 @@ module.exports = {
 	app,
 	server,
 }
+
+app.get('/user-info', (req, res) => {
+
+	if(!req.headers.authorization){
+		return res.status(401).send("User not authorized");
+	}
+
+	const authToken = req.headers.authorization.slice("bearer ".length);
+	
+	let userInfo = null
+	try{ 
+		userInfo = jwt.verify(authToken, config.publicKey, {
+			algorithms: ["RS256"],
+		});
+	}catch(e){
+		return res.status(401).send("Verification failed");
+	}
+	if(!userInfo){
+		return res.status(401).send("Verification failed");
+	}
+
+	const user = users[userInfo.userName];
+	const scope = userInfo.scope.split(" ");
+	const userWithRestrictedFields = {}
+	for(let i = 0; i < scope.length; i++){
+		const field = scope[i].slice("permission:".length);
+		userWithRestrictedFields[field] = user[field];
+		console.log(field)
+	}
+
+	res.json(userWithRestrictedFields); 	
+})
