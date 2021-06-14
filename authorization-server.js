@@ -2,6 +2,7 @@ const fs = require("fs")
 const express = require("express")
 const bodyParser = require("body-parser")
 const jwt = require("jsonwebtoken")
+const url = require("url")
 const {
 	randomString,
 	containsAll,
@@ -10,6 +11,7 @@ const {
 } = require("./utils")
 const { endianness } = require("os")
 const { resolveSoa } = require("dns")
+const { decode } = require("punycode")
 
 const config = {
 	port: 9001,
@@ -95,11 +97,57 @@ app.post('/approve', (req, res) => {
 	const authKey = randomString();
 	authorizationCodes[authKey] = {clientReq: clientReq, userName: userName};
 
+	const redirectUri = url.parse(clientReq.redirect_uri);
+	redirectUri.query = {
+		code: authKey,
+		state: clientReq.state,
+	}
+	
+	res.redirect(url.format(redirectUri));
+
 	res.status(200).end();
 
 })
 
 
+app.post('/token', (req, res) => {
+
+	if(!req.headers.authorization){
+		res.status(401).send('User not authorized')
+		return
+	}
+	const {clientId, clientSecret} = decodeAuthCredentials(req.headers.authorization);
+	if(!clients[clientId] ||
+	clients[clientId].clientSecret !== clientSecret){
+		res.status(401).send('Incorrect credentials: Please try again.')
+		return
+	}
+	if(!authorizationCodes[req.body.code]){
+		res.status(401).send('Authorization code does not exit')
+		return
+	}
+	const obj = authorizationCodes[req.body.code];
+	delete authorizationCodes[req.body.code];
+
+	const token = jwt.sign({
+		userName: obj.userName,
+		scope: obj.clientReq.scope,
+	},
+	config.privateKey,{
+		algorithm: "RS256",
+		expiresIn: 300,
+		issuer: "http://localhost:" + config.port,
+	})
+
+	res.status(200).json({
+		access_token: token,
+		token_type: "Bearer",
+		scope: obj.clientReq.scope,
+	})
+
+
+
+})
 
 
 /*
