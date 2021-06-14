@@ -9,6 +9,7 @@ const {
 	timeout,
 } = require("./utils")
 const { endianness } = require("os")
+const { resolveSoa } = require("dns")
 
 const config = {
 	port: 9001,
@@ -65,9 +66,36 @@ app.get('/authorize', (req, res) => {
 		res.status(401).send("Invalid requested scopes")
 		return
 	}
-	res.status(200).end();
+	res.status(200);
 	const requestId = randomString();
 	requests[requestId] = req.query;
+
+	res.render("login", {
+		client,
+		scope: req.query.scope,
+		requestId,
+	});
+
+})
+
+app.post('/approve', (req, res) => {
+	const {userName, password, requestId} = req.body;
+
+	if(!userName || users[userName] !== password){
+		res.status(401).send('Error: User not authorized')
+		return
+	}
+	const clientReq = requests[requestId];
+	delete requests[requestId];
+	if(!clientReq){
+		res.status(401).send("Error: invalid user request");
+		return;
+	}
+
+	const authKey = randomString();
+	authorizationCodes[authKey] = {clientReq: clientReq, userName: userName};
+
+	res.status(200).end();
 
 })
 
